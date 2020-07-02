@@ -1,0 +1,43 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head> 
+  <title>{{ directory.name }} - Index des albums</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <script type="text/javascript" src="/js/jquery-3.5.1.min.js"></script>
+  <script type="text/javascript" src="/js/jquery.collagePlus.0.3.3.min.js"></script>
+  <script type="text/javascript" src="/js/jquery.removeWhitespace.0.3.3.min.js"></script>
+  <script type="text/javascript" src="/js/collage.init.js"></script>
+  <link rel="stylesheet" type="text/css" href="/css/collagePlus-transitions.css" media="all" />
+  <style type="text/css" media="screen">
+	@import url({{ directory.stylesheet }});
+  </style>
+</head>
+
+<body id="indexPage">
+
+<div id="header">
+  <a id="back" href="{{ directory.parent }}" title="Retour à l'index des photos"><span>&lt;</span></a>
+  <h1>{{ directory.name }}</h1>
+  <h2>Index des albums</h2>
+</div>
+
+<div id="indexContent" class="Collage effect-parent">
+{% for subdir in directory.children %}
+	<a href="{{ subdir.url }}" title="{% if subdir.type in 'album' %}{{subdir.index_desc}}{% else %}{{ subdir.name }}{% endif %}">
+		<img src="{{ subdir.url }}/{{ subdir.thumbnail }}" />
+		<div class="cadre_legende">
+			<div class="legende_album">{% if subdir.type in 'album' %}
+				<p class="titre">{{ subdir.index_desc }}</p>
+				<p class="soustitre">{{ subdir.date }} ({{ subdir.count }} photos)</p>{% else %}
+				<p class="titre">{{ subdir.name }}</p>
+				<p class="soustitre">{{ subdir.desc }}</p>{% endif %}
+			</div>
+		</div>
+	</a>
+{% endfor %}
+
+</div>
+
+</body>
+</html>

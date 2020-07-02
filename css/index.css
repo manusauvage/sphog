@@ -1,0 +1,31 @@
+@import url(/css/index.common.css);
+
+div#header { 
+	border-bottom: 5px solid #ccc; 
+	color: white; 
+	background: #333 url('header.jpg') no-repeat right top;
+}
+p#archive {
+	background: #0f598a;
+}
+p#archive a, .mfp-title a {
+	color: #fef; 
+	text-shadow: 2px 2px 2px #003;
+}
+p#archive a:hover, .mfp-title a:hover {
+	color: white; 
+	text-shadow: 2px 2px 2px #003;
+}
+
+.mfp-title a {
+	background: #00f;
+	text-shadow: none;
+}
+
+#header #back {
+	background: transparent url(/css/back-grey.png) no-repeat left center;
+}
+
+#header #back:hover {
+	background-color: #444; 
+}

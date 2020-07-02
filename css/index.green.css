@@ -1,0 +1,45 @@
+@import url(/css/index.common.css);
+
+div#header { 
+	border-bottom: 5px solid #818e3e;
+	color: #818e3d;
+	text-shadow: 2px 2px 4px #733b2f;
+	background: #d7e3b6 url('header.jpg') no-repeat right top;
+	box-shadow: 2px 0 4px #818e3e;
+}
+
+div#header h1, div#header h2 {
+	text-shadow: rgba(255, 255, 255, 0.5) 1px 1px 3px;
+}
+
+#header h1 a:hover { 
+	background-color: #efe; 
+}
+
+#header #back {
+	background: transparent url(/images/back-green.png) no-repeat left center;
+}
+#header #gallery {
+	background: transparent url(/images/gallery-green.png) no-repeat center center;
+}
+
+#header #back:hover {
+	background-color: #efe;
+}
+
+p#archive {
+	background: #8CA731;
+	box-shadow: 2px 2px 4px #818e3e;
+}
+p#archive a, .mfp-title a {
+	color: #fef; 
+	text-decoration: none;
+	text-shadow: 2px 2px 2px #333;
+}
+p#archive a:hover, .mfp-title a:hover {
+	text-shadow: 2px 2px 2px #333;
+}
+
+.mfp-title a {
+	background: #8CA731;
+}
