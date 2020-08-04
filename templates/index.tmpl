@@ -23,8 +23,8 @@
 <div id="header">
   <a id="back" href="{{ album.parent }}" title="retour à l'index"><span>&lt;</span></a>
   <h1>{{ album.name }}</h1>
-  <h2>{{ album.desc }} ({{ album.date }})</h2>
-  <p id="archive"><a href="{{ album.archive }}">T&eacute;l&eacute;charger toutes les photos</a></p>
+  <h2>{{ album.desc }} ({{ album.date }})</h2>{% if album.archive %}
+  <p id="archive"><a href="{{ album.archive }}">T&eacute;l&eacute;charger toutes les photos</a></p>{% endif %}
 </div>
 
 <div class="spinner">

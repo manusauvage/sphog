@@ -2,11 +2,6 @@
 #coding: utf-8
 """ A simple script to generate static photo galleries
 
-This script relies on the following js libs :
-- [jQuery](https://jquery.com/) - versions 1, 2 & 3 should be supported
-- [Magnify-Popup](https://github.com/manusauvage/Magnific-Popup) (patched version to support jQuery3)
-- [jquery-collagePlus](https://github.com/ed-lea/jquery-collagePlus)
-
 Copyright © 2020 Emmanuel le Chevoir
 
 This program is free software: you can redistribute it and/or modify it under
@@ -222,7 +217,7 @@ class Album(object):
 		else:
 			self.index_desc = self.desc
 		self.date       = config.get('album', 'date')
-		self.archive    = config.get('album', 'zipfile')
+		self.archive    = config.get('album', 'zipfile', fallback='')
 		self.template   = config.get('album', 'template')
 		self.stylesheet = config.get('album', 'stylesheet')
 		self.thumbnail  = config.get('album', 'thumbnail')
@@ -239,7 +234,7 @@ class Album(object):
 		try:
 			self.parent  = config.get('album', 'parent')
 		except configparser.NoOptionError:
-			self.parent = '/'
+			self.parent = self._get_parent()
 		self._photos = []
 
 	def __iter__(self):
@@ -250,6 +245,11 @@ class Album(object):
 		photo.config = self.config
 		self._photos.append(photo)
 		self.count += 1
+
+	def _get_parent(self):
+		parent = os.path.abspath(os.path.join(self.path, os.pardir))
+		siteroot = self.config.get('global', 'siteroot')
+		return u'{}'.format(re.sub(r'^{}'.format(siteroot), '/', parent)).replace('//', '/')
 
 	def _parse_photodir(self):
 		# parse album.photodir to find original photos and add them to the object's list
@@ -264,6 +264,21 @@ class Album(object):
 				# Only consider photos located directly in photodir, ignore subdirs
 				if os.path.exists(os.path.join(self.photodir, f)):
 					self.add(Photo(os.path.join(self.photodir, f), self.config))
+
+	def _zip_files(self):
+		if os.path.exists(self.archive):
+			if self.regen == False:
+				verbose ('zip archive {} already created'.format(self.archive))
+				return
+			else:
+				verbose ('Removing existing zip archive [{}]'.format(self.archive))
+				os.remove(self.archive)
+		verbose ('Creating zip archive...')
+		z = zipfile.ZipFile(self.archive, 'w')
+		for p in self._photos:
+			z.write(p.path)
+		z.close()
+		os.chmod(self.archive, 0o644)
 
 	def prepare(self):
 		self._photos = []
@@ -299,21 +314,9 @@ class Album(object):
 				prev.next = p
 			p.prev = prev
 			prev = p
-		# Create an archive containing the original photos
-		# FIXME: we need a config flag to allow skipping that step
-		if os.path.exists(self.archive):
-			if self.regen == False:
-				verbose ('zip archive {} already created'.format(self.archive))
-				return
-			else:
-				verbose ('Removing existing zip archive [{}]'.format(self.archive))
-				os.remove(self.archive)
-		verbose ('Creating zip archive...')
-		z = zipfile.ZipFile(self.archive, 'w')
-		for p in self._photos:
-			z.write(p.path)
-		z.close()
-		os.chmod(self.archive, 0o644)
+		# Create an archive containing the original photos, if requested
+		if self.archive != '':
+			self._zip_files()
 
 	'''Render current album using the appropriate template. 
            FIXME: Output file is hardcoded to index.html, maybe this should change'''
@@ -373,15 +376,42 @@ class Photo(object):
 		preview_width  = self._get_size(preview_height)
 		return preview_width, preview_height
 
+def get_input(prompt):
+	# python3 has no raw_input, and input has a potentially risky behaviour in python2. Try to fix that.
+	if not 'raw_input' in dir(__builtins__):
+		raw_input = input
+	return raw_input(prompt)
 
-def build_album(site_config, regen=False):
+def build_album_def():
+	base_template = '[album]\ntitle: {title}\ndesc: {desc}\ndate: {date}\n'
+	validation = False
+	default_title = os.path.basename(get_current_path())
+	answers = dict()
+	while not validation:
+		answers['title'] = get_input('    >>> Album title [{}]: '.format(default_title))
+		if answers['title'] == '': answers['title'] = default_title
+		answers['desc'] = get_input('    >>> Description: ')
+		answers['date'] = get_input('    >>> Date: ')
+		ans = get_input ("\nI: The following album.def file will be written:\n    {:-^80s}\n    {}{:-^80s}\n\n    >>> Is that correct? [Y|n]".format('', '\n    '.join(base_template.format(**answers).split('\n')), ''))
+		if ans == '' or ans.upper() == 'Y': validation = True
+	print ('\n')
+	out = codecs.open('album.def', 'wb', 'utf8')
+	out.write(base_template.format(**answers))
+	out.close()
+
+def build_album(site_config, regen=False, interactive=False):
 	try: 
 		album = Album(site_config, regen)
 		info ('Building album [{}]'.format(album.base))
 		album.prepare()
 		album.render()
 	except FileNotFoundError as e:
-		error (e)
+		if interactive is True:
+			info ('No album.def found, switching to interactive mode')
+			build_album_def()
+			build_album(site_config, regen)
+		else:
+			error (e)
 	except:
 		raise
 
@@ -421,4 +451,4 @@ if __name__ == '__main__':
 		sys.exit(0)
 
 	# otherwise, deal with the album if there is one
-	build_album(site_config, regen=args.force_regen)
+	build_album(site_config, regen=args.force_regen, interactive=True)
