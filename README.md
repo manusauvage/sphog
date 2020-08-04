@@ -1,5 +1,5 @@
-# photo-gallery
-A simple script to generate static photo galleries.
+# sphog - Simple Photo Gallery
+A simple tool to quickly generate static photo galleries.
 
 
 # Description
@@ -8,8 +8,8 @@ This script relies on [PIL](http://www.pythonware.com/products/pil/) for image p
 # Usage
 The script can be launched from an album directory (containing pictures), or from an index directory (containing album directories or index subdirectories):
 ```
-% gen_collage.py --help
-gen_collage.py [-h] [-v] [-q] [-r] [-b] [-f]
+% sphog.py --help
+sphog.py [-h] [-v] [-q] [-r] [-b] [-f]
 
 optional arguments:
   -h, --help          show this help message and exit
@@ -32,7 +32,7 @@ drwxr-xr-x 2 user group 4096 Jul 22 12:56 photos
 title: Nice photos
 desc: Taken with love and a digital camera
 date: Sometime in 2009
-% gen_collage.py --verbose
+% sphog.py --verbose
 I: Building album [/misc/test_album/]
     | Generating album thumbnail (vignette.jpg)
     | Generating thumbnails and preview images...
