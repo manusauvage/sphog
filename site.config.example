@@ -1,12 +1,12 @@
 [global]
-siteroot: /home/manu/www/photos
-templatedir: /home/manu/scripts/photos/templates
+siteroot: /path/to/website/root
+templatedir: /path/to/sphog/templates
 
 [album]
 photodir: photos
 template: index.tmpl
 stylesheet: /css/index.white.css
-thumbnail: vignette.jpg
+thumbnail: thumbnail.jpg
 thumbnail_size: 450
 
 [photos]
@@ -16,7 +16,7 @@ preview_prefix: preview_
 preview_height: 768
 
 [directory]
-desc: Index des albums
+desc: Album index
 stylesheet: /css/index.white.css
-thumbnail: vignette.jpg
+thumbnail: album_thumbnail.jpg
 template: directory.tmpl
