@@ -1,10 +1,12 @@
+#coding: utf-8
+
 import os, os.path
 import re
 import codecs
 import configparser
 import zipfile
 
-from PIL import Image
+from PIL import Image, ExifTags
 from jinja2 import  Environment, FileSystemLoader
 from tqdm import tqdm
 
@@ -31,6 +33,33 @@ def _gen_thumbnail(file_in, file_out, width=450):
 	im = Image.open(file_in)
 	im_thumb = _crop_center(im, min(im.size), min(im.size)).resize((width, width), Image.LANCZOS)
 	im_thumb.save(file_out, quality=95)
+
+
+# Helper function to generate a smaller version of a photo (e.g. thumbnails, preview)
+def _gen_image_copy(path_in, path_out, size):
+	thumb = Image.open(path_in)
+	# extract EXIF metadata and check whether we need to rotate the output file
+	# PIL does not copy metadata, and we don't want to lose the orientation.
+	exif = dict((ExifTags.TAGS[k], v) for k, v in thumb._getexif().items() if k in ExifTags.TAGS)
+	rotation = 0
+	if 'Orientation' in exif:
+		o = exif['Orientation']
+		if o == 8: rotation = 90
+		if o == 3: rotation = 180
+		if o == 6: rotation = 270
+		if o == 8 or o == 6:
+			# swap height and width when rotation is 90 or 270
+			rsize = (size[1], size[0])
+			size = rsize
+	if rotation > 0:
+		# rotate the resized image when needed
+		verbose ('{} needs rotation: {}°'.format(path_in, rotation))
+		thumb = thumb.rotate(rotation, expand=True)
+	# Resize the photo to match the expected size.
+	thumb = thumb.resize(size, Image.ANTIALIAS)
+	thumb.save(path_out)
+	os.chmod(path_out, 0o644)
+
 
 
 class Album(object):
@@ -136,15 +165,9 @@ class Album(object):
 			os.chmod(p.path, 0o644)
 			p._extract_desc(default=self.desc)
 			if not os.path.exists(p.thumb_path) or self.regen == True:
-				thumb = Image.open(p.path)
-				thumb = thumb.resize(p.get_thumb_size(), Image.ANTIALIAS)
-				thumb.save(p.thumb_path)
-				os.chmod(p.thumb_path, 0o644)
+				_gen_image_copy(p.path, p.thumb_path, p.get_thumb_size())
 			if not os.path.exists(p.preview_path) or self.regen == True:
-				preview = Image.open(p.path)
-				preview = preview.resize(p.get_preview_size(), Image.ANTIALIAS)
-				preview.save(p.preview_path)
-				os.chmod(p.preview_path, 0o644)
+				_gen_image_copy(p.path, p.preview_path, p.get_preview_size())
 			if prev:
 				prev.next = p
 			p.prev = prev
