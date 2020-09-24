@@ -1,7 +1,7 @@
 from __future__ import print_function
 import sys
 import os
-from settings import settings
+from .settings import settings
 
 # Helper functions to report the script status.
 # note: python logging seems a little overkill for our needs, so we don't use it
