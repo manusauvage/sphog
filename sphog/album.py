@@ -30,9 +30,14 @@ def _crop_center(pil_img, crop_width, crop_height):
 
 # Helper function to generate a square thumbnail from a large picture
 def _gen_thumbnail(file_in, file_out, width=450):
-    im = Image.open(file_in)
-    im_thumb = _crop_center(im, min(im.size), min(im.size)).resize((width, width), Image.LANCZOS)
-    im_thumb.save(file_out, quality=95)
+    try:
+        im = Image.open(file_in)
+        im_thumb = _crop_center(im, min(im.size), min(im.size)).resize((width, width), Image.LANCZOS)
+        im_thumb.save(file_out, quality=95)
+        return True
+    except FileNotFoundError:
+        error('Could not find thumbnail source [{}]'.format(file_in))
+        return False
 
 
 # Helper function to generate a smaller version of a photo (e.g. thumbnails, preview)
@@ -156,8 +161,14 @@ class Album(object):
             self.thumbnail_src = self._photos[0].path
         if not os.path.isfile(self.thumbnail) or self.regen == True:
             verbose (u'Generating album thumbnail ({})'.format(self.thumbnail))
-            _gen_thumbnail(self.thumbnail_src, self.thumbnail, self.thumbnail_size)
-            os.chmod(self.thumbnail, 0o644)
+            if _gen_thumbnail(self.thumbnail_src, self.thumbnail, self.thumbnail_size):
+                os.chmod(self.thumbnail, 0o644)
+            elif len(self._photos) > 0:
+                warn(u'Using first picture as album thumbnail')
+                if _gen_thumbnail(self._photos[0].path, self.thumbnail, self.thumbnail_size):
+                    os.chmod(self.thumbnail, 0o644)
+            else:
+                warn(u'No picture found in album, skipping thumbnail generation')
         prev = None
         verbose ("Generating thumbnails and preview images...")
         barfmt = '    |{bar}|{percentage:3.0f}% ({n_fmt}/{total_fmt}) [{elapsed}<{remaining}]'
