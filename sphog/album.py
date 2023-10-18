@@ -74,7 +74,7 @@ def _gen_image_copy(path_in, path_out, size):
                 rsize = (size[1], size[0])
                 size = rsize
     if rotation > 0:
-        # rotate the resized image when needed
+        # Rotate the resized image when needed
         verbose ('{} needs rotation: {}°'.format(path_in, rotation))
         thumb = thumb.rotate(rotation, expand=True)
     # Resize the photo to match the expected size.
@@ -252,7 +252,8 @@ class Album(object):
             )
         for p in progress:
             os.chmod(p.path, 0o644)
-            p._extract_desc(default=self.desc)
+            # p._extract_desc(default=self.desc)
+            p._extract_desc()
             if not os.path.exists(p.thumb_path) or self.regen is True:
                 _gen_image_copy(p.path, p.thumb_path, p.get_thumb_size())
             if not os.path.exists(p.preview_path) or self.regen is True:

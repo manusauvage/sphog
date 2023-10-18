@@ -55,7 +55,20 @@ def build_index_def():
         answers['title'] = get_input('    >>> Directory title [{}]: '.format(default_title))
         if answers['title'] == '': answers['title'] = default_title
         answers['desc'] = get_input('    >>> Description: ')
-        ans = get_input ("\nI: The following index.def file will be written:\n    {:-^80s}\n    {}{:-^80s}\n\n    >>> Is that correct? [Y|n]".format('', '\n    '.join(base_template.format(**answers).split('\n')), ''))
+        ans = get_input (
+            (
+                "\nI: The following index.def file will be written:\n"
+                "    {:-^80s}\n"
+                "    {}{:-^80s}\n\n"
+                "    >>> Is that correct? [Y|n]"
+            ).format(
+                '',
+                '\n    '.join(
+                    base_template.format(**answers).split('\n')
+                ),
+                ''
+                )
+        )
         if ans == '' or ans.upper() == 'Y': validation = True
     print ('\n')
     with codecs.open('index.def', 'wb', 'utf8') as out:
@@ -71,14 +84,27 @@ def build_album_def():
         if answers['title'] == '': answers['title'] = default_title
         answers['desc'] = get_input('    >>> Description: ')
         answers['date'] = get_input('    >>> Date: ')
-        ans = get_input ("\nI: The following album.def file will be written:\n    {:-^80s}\n    {}{:-^80s}\n\n    >>> Is that correct? [Y|n]".format('', '\n    '.join(base_template.format(**answers).split('\n')), ''))
+        ans = get_input (
+            (
+                "\nI: The following album.def file will be written:\n"
+                "    {:-^80s}\n"
+                "{}{:-^80s}\n\n"
+                ">>> Is that correct? [Y|n]"
+            ).format(
+                '',
+                '\n    '.join(
+                    base_template.format(**answers).split('\n')
+                    ),
+                ''
+                )
+        )
         if ans == '' or ans.upper() == 'Y': validation = True
     print ('\n')
     with codecs.open('album.def', 'wb', 'utf8') as out:
         out.write(base_template.format(**answers))
 
 def build_album(site_config, regen=False, interactive=False):
-    try: 
+    try:
         album = Album(site_config, regen)
         info ('Building album [{}]'.format(album.base))
         album.prepare()

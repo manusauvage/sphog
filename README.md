@@ -46,23 +46,61 @@ drwxr-xr-x 2 user group  4096 Jul 22 12:59 photos
 
 # Documentation
 ## Configuration files
-`album.def` and `index.def`
-TODO: document format
+Albums can be configured using an `album.def` file, which must be located at the root of the album directory.
+Similarly, album indexes can be configured using an `index.def` file.
+
+### `album.def` format
+
+The album configuration file has to be located at the root of the album directory, in a file called `album.def`.
+This file uses a standard configuration file syntax, read and parsed using the `configparser` python module.
+Most of the configuration values can be set once in the global configuration file (`site.config`)
+
+A minimal `album.def` only requires the `[album]` section, with `title`, `desc` and `date` keys:
+
+```
+[album]
+title: album title
+desc: album description
+date: free-format string representing the album date / period
+```
+
+All global configuration items of the `[album]` and `[photos]` sections can however be overridden in the `album.def` file:
+
+```
+[album]
+title: album title
+desc: album description
+date: free-format string representing the album date / period
+zipfile: zip archive filename
+stylesheet: path to the album stylesheet (e.g. /css/index.css)
+parent: path to the album parent (e.g. /albums/europe/)
+thumbnail: default name for the square album thumbnail (e.g. thumbnail.jpg)
+thumbnail_size: default size for the square album thumbnail in pixels (e.g. 450)
+
+[photos]
+thumb_prefix: the prefix used to name photo thumbnails (e.g. thumb_)
+thumb_height: the photo thumbnail height, in pixels (e.g. 290)
+preview_prefix: the prefix used to name photo previews (e.g. preview_)
+preview_height: the photo preview height, in pixels (e.g. 768)
+```
+
+### `index.def` format
+
+FIXME: todo
+
 
 ## Default templates
-Default templates are provided. They leverage the following js libs:
-- [jQuery](https://jquery.com/) - versions 1, 2 & 3 should be supported
-- [Magnific-Popup](https://github.com/manusauvage/Magnific-Popup) (patched version to support jQuery3)
-- [jquery-collagePlus](https://github.com/ed-lea/jquery-collagePlus)
+Default templates are provided. They come with sane defaults and use [PhotoSwipe](https://photoswipe.com/), with no additional js dependency.
 
 
 ## Creating custom templates 
 ### Album templates
-When an album template is rendered, it can us all data exposed by an `Album` object and from the collection of `Photo` objects found in that `Album`.
+When an album template is rendered, it can use all data exposed by an `Album` object and from the collection of `Photo` objects found in that `Album`.
 
 Useful `Album` properties include:
 - `name` - the title of the album
 - `desc` - the long description of the album
+- `index_desc` - an alternate description which may be used to provide a distinct string in album indexes
 - `date` - information that can be used to date the album (this is a free form string, not a `datetime` object)
 - `archive` - the path to the photo archive (a zip file) which may be generated
 - `stylesheet` - a link to the stylesheet used to render the album
@@ -70,6 +108,7 @@ Useful `Album` properties include:
 - `count` - the number of photos in the album
 - `url` - the default URL for the album
 - `parent` - the URL for the album parent index
+- `type` - the album type ('album'), which can be used to determine the target item type when iterating on the children of a given directory
 
 Iterating on an `Album` object yields the individual `Photo` objects composing it.
 
@@ -86,7 +125,18 @@ Useful `Photo` properties include:
 - `is_vertical` - a boolean flag indicating whether the image height is larger than the image width
 
 ### Index templates
-TODO: document
+When an index template is rendered, it can use all data exposed by an `AlbumSet` object.
+
+Useful `AlbumSet` properties include:
+- `name` - the title of the index file
+- `desc` - the long description of the index file
+- `type` - the index type ('albumset'), which can be used to determine the target item type when iterating on the children of a given directory
+- `stylesheet` - a link to the stylesheet used to render the index file
+- `thumbnail` - the path to the index directory thumbnail (used by parent index, if it exists)
+- `url` - the default URL for the index
+- `parent` - the URL for the parent index
+- `children` - the list of subalbums
+
 
 # Examples of generated galleries
 Example galleries can be found [here](http://photos.lechevoir.net/public/)
